@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AccountStatus {
+  NOT_VERIFIED
+  ACTIVE
+  DISABLED
+
+  @@map("ACCOUNT_STATUS")
+}
+
+enum RelationshipStatus {
+  PENDING
+  FRIEND
+  BLOCKED
+
+  @@map("RELATIONSHIP_STATUS")
+}
+
+enum ConnectionStatus {
+  ONLINE
+  OFFLINE
+
+  @@map("CONNECTION_STATUS")
+}
+
+model Accounts {
+  id          String        @id @default(uuid())
+  email       String        @unique()
+  password    String
+  username    String        @unique()
+  dateOfBirth DateTime      @map("date_of_birth") @db.Date()
+  phoneNumber String?       @unique() @map("phone_number")
+  status      AccountStatus @default(NOT_VERIFIED)
+
+  displayName String? @map("display_name")
+  pronouns    String?
+  avatar      String?
+  bannerColor String  @map("banner_color")
+  about       String?
+
+  settings Json @default("{}")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @updatedAt() @map("updated_at") @db.Timestamptz()
+
+  sessions         Sessions[]
+  relationship     Relationships[] @relation("have_relationship_with")
+  relationshipWith Relationships[] @relation("in_relationship_with")
+  dmSender         DirectMessages[] @relation("is_dm_sender")
+  dmTarget         DirectMessages[] @relation("is_dm_target")
+
+  @@map("accounts")
+}
+
+model Sessions {
+  account   Accounts @relation(fields: [accountId], references: [id])
+  accountId String   @map("account_id")
+
+  id               String           @id @default(uuid())
+  accessToken      String           @map("access_token")
+  refreshToken     String           @map("refresh_token")
+  connectionStatus ConnectionStatus @default(OFFLINE) @map("connection_status")
+  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt        DateTime         @updatedAt() @map("updated_at") @db.Timestamptz()
+
+  @@map("sessions")
+}
+
+model Relationships {
+  account   Accounts @relation(fields: [accountId], references: [id], name: "have_relationship_with")
+  accountId String   @map("account_id")
+  target    Accounts @relation(fields: [targetId], references: [id], name: "in_relationship_with")
+  targetId  String   @map("target_id")
+
+  status    RelationshipStatus @default(PENDING)
+  createdAt DateTime           @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime           @updatedAt() @map("updated_at") @db.Timestamptz()
+
+  @@id([accountId, targetId])
+  @@map("relationships")
+}
+
+enum MessageTypes {
+  TEXT
+  IMAGE
+
+  @@map("MESSAGES_TYPES")
+}
+
+model DirectMessages {
+  id       String       @id @default(uuid())
+
+  sender   Accounts     @relation(fields: [senderId], references: [id], name: "is_dm_sender")
+  senderId String       @map("sender_id")
+  target   Accounts     @relation(fields: [targetId], references: [id], name: "is_dm_target")
+  targetId String       @map("target_id")
+  
+  content  String
+  type     MessageTypes @default(TEXT)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @updatedAt() @map("updated_at") @db.Timestamptz()
+
+  @@map("direct_messages")
+}
