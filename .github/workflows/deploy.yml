@@ -16,13 +16,14 @@ jobs:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
           PORT: ${{ secrets.PORT }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run:  |
               curl  --request PUT \
                     --url "https://api.render.com/v1/services/$RENDER_SERVICE_ID/env-vars" \
                     --header "accept: application/json" \
                     --header "authorization: Bearer $RENDER_API_KEY" \
                     --header "content-type: application/json" \
-                    --data "[{\"key\": \"PORT\",\"value\": \"$PORT\"}]"
+                    --data "[{\"key\": \"PORT\",\"value\": \"$PORT\"},{\"key\":\"DATABASE_URL\", \"value\": \"$DATABASE_URL\"}]"
       - name: Trigger Render deployment
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
