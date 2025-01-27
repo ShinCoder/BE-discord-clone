@@ -24,6 +24,7 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     'prettier/prettier': 'off',
+    'import/no-named-as-default-member': 'off',
 
     'import/no-unresolved': 'error',
     'import/order': [
