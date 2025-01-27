@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 
 import { AuthModule } from 'src/modules/auth/auth.module';
+import { JwtAtStrategy, JwtRtStrategy, JwtVtStrategy } from 'src/strategies';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -19,6 +20,9 @@ import { AppService } from './app.service';
         JWT_AT_EXPIRES: Joi.string().required(),
         JWT_RT_EXPIRES: Joi.string().required(),
         JWT_VT_EXPIRES: Joi.string().required(),
+        JWT_AT_PUBLIC: Joi.string().required(),
+        JWT_RT_PUBLIC: Joi.string().required(),
+        JWT_VT_PUBLIC: Joi.string().required(),
         MAIL_HOST: Joi.string().required(),
         MAIL_USER: Joi.string().required(),
         MAIL_PASS: Joi.string().required(),
@@ -30,6 +34,6 @@ import { AppService } from './app.service';
     AuthModule
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [AppService, JwtAtStrategy, JwtRtStrategy, JwtVtStrategy]
 })
 export class AppModule {}

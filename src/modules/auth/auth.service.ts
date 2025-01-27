@@ -1,6 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { AccountStatus } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 import { CustomErrorCode, CustomErrorMessage } from 'shared/constants';
@@ -23,7 +24,7 @@ export class AuthService {
 
   private readonly saltRounds = 10;
 
-  private signToken(type: EJwtType, userId: string): string {
+  private signToken(type: EJwtType, accountId: string): string {
     let envType: string;
     switch (type) {
       case EJwtType.ACCESS:
@@ -40,10 +41,13 @@ export class AuthService {
         break;
     }
 
-    return this.jwtService.sign({ sub: userId, type } satisfies IJwtPayload, {
-      privateKey: this.configService.get<string>(`JWT_${envType}_SECRET`),
-      expiresIn: this.configService.get<string>(`JWT_${envType}_EXPIRES`)
-    });
+    return this.jwtService.sign(
+      { sub: accountId, type } satisfies IJwtPayload,
+      {
+        privateKey: this.configService.get<string>(`JWT_${envType}_SECRET`),
+        expiresIn: this.configService.get<string>(`JWT_${envType}_EXPIRES`)
+      }
+    );
   }
 
   async register(data: RegisterDto) {
@@ -96,6 +100,39 @@ export class AuthService {
         name: data.username,
         verificationLink: `${this.configService.get<string>('WEBAPP_VERIFY_URL')}?token=${verifyToken}`
       }
+    });
+  }
+
+  async verify(accountId: string) {
+    await this.prismaService.$transaction(async (tx) => {
+      const account = await tx.accounts.findFirst({
+        select: {
+          id: true,
+          status: true
+        },
+        where: { id: accountId }
+      });
+
+      if (!account) {
+        throw new CustomException(
+          CustomErrorMessage.COMMON__ACCOUNT_NOT_FOUND,
+          HttpStatus.NOT_FOUND,
+          CustomErrorCode.COMMON__ACCOUNT_NOT_FOUND
+        );
+      }
+
+      if (account.status !== AccountStatus.NOT_VERIFIED) {
+        throw new CustomException(
+          CustomErrorMessage.VERIFY__INVALID_STATUS,
+          HttpStatus.CONFLICT,
+          CustomErrorCode.VERIFY__INVALID_STATUS
+        );
+      }
+
+      await tx.accounts.update({
+        where: { id: accountId },
+        data: { status: AccountStatus.ACTIVE }
+      });
     });
   }
 }

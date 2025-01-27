@@ -1,7 +1,19 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Patch,
+  Post,
+  Req,
+  UseGuards
+} from '@nestjs/common';
+
+import { JwtVtGuard } from 'src/guards';
+import { IRequestWithUser } from 'src/types/auth.types';
 
 import { AuthService } from './auth.service';
-import { RegisterDto } from './dto';
+import { RegisterDto, VerifyDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
@@ -10,5 +22,13 @@ export class AuthController {
   @Post('register')
   register(@Body() body: RegisterDto) {
     return this.authService.register(body);
+  }
+
+  @UseGuards(JwtVtGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Patch('verify')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  verify(@Req() req: IRequestWithUser, @Body() body: VerifyDto) {
+    return this.authService.verify(req.user.sub);
   }
 }
