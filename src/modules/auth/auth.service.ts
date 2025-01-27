@@ -10,15 +10,15 @@ import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { EJwtType, IJwtPayload } from 'src/types/auth.types';
 
 import { RegisterDto } from './dto';
-
-
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
-    private readonly prismaService: PrismaService
+    private readonly prismaService: PrismaService,
+    private readonly mailService: MailService
   ) {}
 
   private readonly saltRounds = 10;
@@ -47,7 +47,7 @@ export class AuthService {
   }
 
   async register(data: RegisterDto) {
-    await this.prismaService.$transaction(async (tx) => {
+    const account = await this.prismaService.$transaction(async (tx) => {
       const existingAccount = await tx.accounts.findFirst({
         select: {
           id: true,
@@ -71,7 +71,7 @@ export class AuthService {
         );
       }
 
-      const account = await tx.accounts.create({
+      const newAccount = await tx.accounts.create({
         data: {
           email: data.email,
           password: await bcrypt.hash(data.password, this.saltRounds),
@@ -85,9 +85,17 @@ export class AuthService {
         }
       });
 
-      const verifyToken = this.signToken(EJwtType.VERIFY, account.id);
+      return newAccount;
+    });
 
-      // !! Send verification email here
+    const verifyToken = this.signToken(EJwtType.VERIFY, account.id);
+
+    await this.mailService.sendVerificationEmail({
+      to: account.email,
+      context: {
+        name: data.username,
+        verificationLink: `${this.configService.get<string>('WEBAPP_VERIFY_URL')}?token=${verifyToken}`
+      }
     });
   }
 }

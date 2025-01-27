@@ -1,0 +1,119 @@
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Verify Email</title>
+  </head>
+  <body>
+    <div
+      style='
+        font-family: Helvetica Neue, Helvetica, Arial, Lucida Grande, sans-serif;
+        background-color: #f9f9f9;
+      '
+    >
+      <div
+        style='max-width: 640px; margin: 0 auto; background-color: transparent'
+      >
+        <table role='presentation' style='width: 100%'>
+          <tr>
+            <td style='padding: 40px 0'>
+              <table role='presentation' align='center'>
+                <tr>
+                  <td style='width: 138px'>
+                    <img
+                      src='https://firebasestorage.googleapis.com/v0/b/discord-clone-a3c63.appspot.com/o/app%2Fdc_logo.png?alt=media&token=95f986c3-988d-4578-a6c2-e5a03c1aa9c1'
+                      alt='logo'
+                      style='width: 138px; height: 38px'
+                    />
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div
+        style='
+          max-width: 640px;
+          border-radius: 4px;
+          margin: 0 auto;
+          background-color: #ffffff;
+        '
+      >
+        <div style='padding: 40px 50px;'>
+          <h2
+            style='
+              color: #4f545c;
+              font-size: 20px;
+              font-weight: 500;
+              letter-spacing: 0.27px;
+            '
+          >
+            Hey
+            {{name}},
+          </h2>
+          <p
+            style='
+              display: block;
+              color: #737f8d;
+              font-size: 16px;
+              line-height: 24px;
+              margin: 13px 0;
+            '
+          >
+            Thanks for registering for an account on Discord! Before we get
+            started, we just need to confirm that this is you. Click below to
+            verify your email address:
+          </p>
+          <table role='presentation' style='width: 100%'>
+            <tr>
+              <td style='padding: 20px 25px 10px 25px'>
+                <table role='presentation' align='center'>
+                  <tr>
+                    <td>
+                      <a
+                        href='{{verificationLink}}'
+                        style='
+                          color: white;
+                          font-size: 15px;
+                          font-weight: normal;
+                          text-decoration: none;
+                          text-transform: none;
+                          padding: 15px 19px;
+                          border: none;
+                          border-radius: 3px;
+                          background-color: #5865f2;
+                        '
+                      >
+                        Verify Email
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div
+        style='
+          max-width: 640px;
+          margin: 0 auto;
+          padding: 20px 0;
+          background-color: transparent;
+        '
+      >
+        <div
+          style='
+            color: #99aab5;
+            font-size: 12px;
+            line-height: 24px;
+            text-align: center;
+          '
+        >
+          NOT sent by Discord
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

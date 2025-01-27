@@ -18,7 +18,13 @@ import { AppService } from './app.service';
         JWT_VT_SECRET: Joi.string().required(),
         JWT_AT_EXPIRES: Joi.string().required(),
         JWT_RT_EXPIRES: Joi.string().required(),
-        JWT_VT_EXPIRES: Joi.string().required()
+        JWT_VT_EXPIRES: Joi.string().required(),
+        MAIL_HOST: Joi.string().required(),
+        MAIL_USER: Joi.string().required(),
+        MAIL_PASS: Joi.string().required(),
+        MAIL_FROM: Joi.string().required(),
+        WEBAPP_BASE_URL: Joi.string().required(),
+        WEBAPP_VERIFY_URL: Joi.string().required()
       })
     }),
     AuthModule
