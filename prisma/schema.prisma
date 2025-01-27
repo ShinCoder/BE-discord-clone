@@ -39,7 +39,7 @@ model Accounts {
   phoneNumber String?       @unique() @map("phone_number")
   status      AccountStatus @default(NOT_VERIFIED)
 
-  displayName String? @map("display_name")
+  displayName String @map("display_name")
   pronouns    String?
   avatar      String?
   bannerColor String  @map("banner_color")

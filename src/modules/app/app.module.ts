@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 
+import { AuthModule } from 'src/modules/auth/auth.module';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 @Module({
@@ -10,9 +12,16 @@ import { AppService } from './app.service';
       isGlobal: true,
       validationSchema: Joi.object({
         PORT: Joi.number().default(3000),
-        DATABASE_URL: Joi.string().required()
+        DATABASE_URL: Joi.string().required(),
+        JWT_AT_SECRET: Joi.string().required(),
+        JWT_RT_SECRET: Joi.string().required(),
+        JWT_VT_SECRET: Joi.string().required(),
+        JWT_AT_EXPIRES: Joi.string().required(),
+        JWT_RT_EXPIRES: Joi.string().required(),
+        JWT_VT_EXPIRES: Joi.string().required()
       })
-    })
+    }),
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService]
