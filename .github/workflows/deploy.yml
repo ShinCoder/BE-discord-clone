@@ -17,20 +17,26 @@ jobs:
           RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
           PORT: ${{ secrets.PORT }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run:  |
-              curl  --request PUT \
-                    --url "https://api.render.com/v1/services/$RENDER_SERVICE_ID/env-vars" \
-                    --header "accept: application/json" \
-                    --header "authorization: Bearer $RENDER_API_KEY" \
-                    --header "content-type: application/json" \
-                    --data "[{\"key\": \"PORT\",\"value\": \"$PORT\"},{\"key\":\"DATABASE_URL\", \"value\": \"$DATABASE_URL\"}]"
+          JWT_AT_SECRET: ${{ secrets.JWT_AT_SECRET }}
+          JWT_RT_SECRET: ${{ secrets.JWT_RT_SECRET }}
+          JWT_VT_SECRET: ${{ secrets.JWT_VT_SECRET }},
+          JWT_AT_EXPIRES: ${{ secrets.JWT_AT_EXPIRES }},
+          JWT_RT_EXPIRES: ${{ secrets.JWT_RT_EXPIRES }},
+          JWT_VT_EXPIRES: ${{ secrets.JWT_VT_EXPIRES }}
+        run: |
+          curl  --request PUT \
+                --url "https://api.render.com/v1/services/$RENDER_SERVICE_ID/env-vars" \
+                --header "accept: application/json" \
+                --header "authorization: Bearer $RENDER_API_KEY" \
+                --header "content-type: application/json" \
+                --data "[{\"key\": \"PORT\",\"value\": \"$PORT\"},{\"key\":\"DATABASE_URL\", \"value\": \"$DATABASE_URL\"},{\"key\":\"JWT_AT_SECRET\", \"value\": \"$JWT_AT_SECRET\"},{\"key\":\"JWT_RT_SECRET\", \"value\": \"$JWT_RT_SECRET\"},{\"key\":\"JWT_VT_SECRET\", \"value\": \"$JWT_VT_SECRET\"},{\"key\":\"JWT_AT_EXPIRES\", \"value\": \"$JWT_AT_EXPIRES\"},{\"key\":\"JWT_RT_EXPIRES\", \"value\": \"$JWT_RT_EXPIRES\"},{\"key\":\"JWT_VT_EXPIRES\", \"value\": \"$JWT_VT_EXPIRES\"}]"
       - name: Trigger Render deployment
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
-        run:  |
-              curl  --request POST \
-                    --url "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
-                    --header "accept: application/json" \
-                    --header "authorization: Bearer $RENDER_API_KEY" \
-                    --header "content-type: application/json" \
+        run: |
+          curl  --request POST \
+                --url "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
+                --header "accept: application/json" \
+                --header "authorization: Bearer $RENDER_API_KEY" \
+                --header "content-type: application/json" \
