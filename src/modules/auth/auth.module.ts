@@ -5,6 +5,7 @@ import { PrismaModule } from 'src/modules/prisma/prisma.module';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { AuthService } from './auth.service';
         algorithm: 'RS256'
       }
     }),
-    PrismaModule
+    PrismaModule,
+    MailModule
   ],
   controllers: [AuthController],
   providers: [AuthService]

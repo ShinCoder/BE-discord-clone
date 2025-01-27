@@ -1,3 +1,5 @@
+import { Request } from 'express';
+
 export enum EJwtType {
   ACCESS = 'Access',
   REFRESH = 'Refresh',
@@ -9,3 +11,5 @@ export type IJwtPayload = {
   sub: string;
   type: EJwtType;
 };
+
+export type IRequestWithUser = Request & { user: IJwtPayload };

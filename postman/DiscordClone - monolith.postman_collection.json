@@ -1,0 +1,81 @@
+{
+	"info": {
+		"_postman_id": "eb56ee0f-5ac1-4373-a9a6-e481c6a89a94",
+		"name": "DiscordClone - monolith",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29629296"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"911.trananhkiet.tk@gmail.com\",\r\n    \"password\": \"123\",\r\n    \"username\": \"shin911\",\r\n    \"dateOfBirth\": \"2002-01-10\",\r\n    \"emailSubscribe\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/api/auth/register",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verify",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"verifyToken\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1OTlhNGFkMy0zMjgxLTQ2NWUtYjNiOS03MDc5YTA1ZDA0MTQiLCJ0eXBlIjoiVmVyaWZ5IiwiaWF0IjoxNzM3OTg2NTU2LCJleHAiOjE3MzgwMjk3NTZ9.FvlR_uTFfUqoiGvsHFkzFkQnI5adCQNEw43rYFPZe_ILKEKay4QpPJ2D9Fw8JM_wt-RH_yho1iWFDmfxT5-DE-IbUkz3FfBtyDy5dPyY-LY7gnyXkz0S52SRBNumLkIctMJ0DXxfqu3QEM7Y7sij4qUnWN7cjp6JjT9SJxAXUkiTuX7tGaFoh9mTOKeZZlEz2NokfV-jwshg6Fpm1MIBMjd1kZbWXTt-ZkmWxB48dCyuRkD-Jl17L5uha9jUg_xvBuO4UUdxRf2b1zRJynT5GU9elnjgBhMhp1rzqmOP2qOkycUuZVAlJ4bV7hq7wbttf8qi-uhQAsdZQBKHGt23kGMDBJ4QBTlDwb3dVSUM8t7856U6gJgv4f6jx7a7fX1sYGzwaLV-o7bo4vG9vx9CSTZ0uDSM_7kNKEYiiMcVjEj8me3M0_q_EalNhxM2KwxoToxhDZG7PssUA00TPoYHUEm7P-OmM7pnYfkGcejj2NKTJ6XfWV5BYcKT6ghXym8Rqm9O8pgdZGcmjHuzz3YQat4BsGkQkO6sYhWL-bc-w07I45dbzGPlZW9lZXsVvwPT39x7tk_kMGfJlGisSQow87k97f1B8X9EQFMrcqwVCEAoojOPX7LG8icMp3HV--FBlfpx3D8bnynzlgR8S4UW8iVWZR4FffduS_akgCQNLzU\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/api/auth/verify",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"verify"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "HOST",
+			"value": "http://localhost:3000",
+			"type": "default"
+		}
+	]
+}
