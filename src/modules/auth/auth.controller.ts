@@ -5,16 +5,17 @@ import {
   HttpStatus,
   Patch,
   Post,
+  Put,
   Req,
   UseGuards
 } from '@nestjs/common';
 
-import { ILoginResult } from 'shared/types/api';
-import { JwtVtGuard } from 'src/guards';
+import { ILoginResult, IRefreshResult } from 'shared/types/api';
+import { JwtRtGuard, JwtVtGuard } from 'src/guards';
 import { IRequestWithUser } from 'src/types/auth.types';
 
 import { AuthService } from './auth.service';
-import { LoginDto, RegisterDto, VerifyDto } from './dto';
+import { LoginDto, RefreshDto, RegisterDto, VerifyDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
@@ -37,5 +38,14 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   login(@Body() body: LoginDto): Promise<ILoginResult> {
     return this.authService.login(body);
+  }
+
+  @UseGuards(JwtRtGuard)
+  @Put('refresh')
+  refresh(
+    @Req() req: IRequestWithUser,
+    @Body() body: RefreshDto
+  ): Promise<IRefreshResult> {
+    return this.authService.refresh(body, req.user.sub);
   }
 }

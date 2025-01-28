@@ -24,3 +24,8 @@ export type IVerifyData = {
 export type IRefreshData = {
   refreshToken: string;
 };
+
+export type IRefreshResult = {
+  accessToken: string;
+  refreshToken: string;
+};

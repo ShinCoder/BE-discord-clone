@@ -10,7 +10,7 @@ import { CustomException } from 'src/exceptions';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { EJwtType, IJwtPayload } from 'src/types/auth.types';
 
-import { LoginDto, RegisterDto } from './dto';
+import { LoginDto, RefreshDto, RegisterDto } from './dto';
 import { MailService } from '../mail/mail.service';
 
 @Injectable()
@@ -190,6 +190,34 @@ export class AuthService {
         data: { account: { connect: { id: account.id } }, refreshToken }
       });
     }
+
+    return { accessToken, refreshToken };
+  }
+
+  async refresh(data: RefreshDto, accountId: string) {
+    const session = await this.prismaService.sessions.findFirst({
+      select: {
+        id: true,
+        accountId: true
+      },
+      where: { accountId, refreshToken: data.refreshToken }
+    });
+
+    if (!session) {
+      throw new CustomException(
+        CustomErrorMessage.REFRESH__SESSION_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+        CustomErrorCode.REFRESH__SESSION_NOT_FOUND
+      );
+    }
+
+    const accessToken = this.signToken(EJwtType.ACCESS, session.accountId);
+    const refreshToken = this.signToken(EJwtType.REFRESH, session.accountId);
+
+    await this.prismaService.sessions.update({
+      where: { id: session.id },
+      data: { refreshToken }
+    });
 
     return { accessToken, refreshToken };
   }
