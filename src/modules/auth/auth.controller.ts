@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 
 import { ILoginResult, IRefreshResult } from 'shared/types/api';
-import { JwtRtGuard, JwtVtGuard } from 'src/guards';
+import { JwtAtGuard, JwtRtGuard, JwtVtGuard } from 'src/guards';
 import { IRequestWithUser } from 'src/types/auth.types';
 
 import { AuthService } from './auth.service';
@@ -47,5 +47,12 @@ export class AuthController {
     @Body() body: RefreshDto
   ): Promise<IRefreshResult> {
     return this.authService.refresh(body, req.user.sub);
+  }
+
+  @UseGuards(JwtAtGuard)
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  logout(@Req() req: IRequestWithUser) {
+    return this.authService.logout(req.user.sub);
   }
 }

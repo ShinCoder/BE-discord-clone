@@ -221,4 +221,15 @@ export class AuthService {
 
     return { accessToken, refreshToken };
   }
+
+  async logout(accountId: string) {
+    const session = await this.prismaService.sessions.findFirst({
+      select: { id: true },
+      where: { accountId }
+    });
+
+    if (session) {
+      await this.prismaService.sessions.delete({ where: { id: session.id } });
+    }
+  }
 }

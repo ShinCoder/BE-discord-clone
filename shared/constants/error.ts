@@ -5,6 +5,7 @@ export const CustomErrorCode = {
 
   COMMON__ACCOUNT_NOT_FOUND: 40400,
   REFRESH__SESSION_NOT_FOUND: 40401,
+  LOGOUT__SESSION_NOT_FOUND: 40402,
 
   REGISTER__EMAIL_EXISTS: 40900,
   REGISTER__USERNAME_EXISTS: 40901,
@@ -22,5 +23,7 @@ export const CustomErrorMessage = {
 
   VERIFY__INVALID_STATUS: 'Invalid account status',
 
-  REFRESH__SESSION_NOT_FOUND: 'Session not found'
+  REFRESH__SESSION_NOT_FOUND: 'Session not found',
+
+  LOGOUT__SESSION_NOT_FOUND: 'Session not found'
 };
