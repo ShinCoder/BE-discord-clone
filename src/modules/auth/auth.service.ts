@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AccountStatus } from '@prisma/client';
@@ -10,7 +10,7 @@ import { CustomException } from 'src/exceptions';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { EJwtType, IJwtPayload } from 'src/types/auth.types';
 
-import { RegisterDto } from './dto';
+import { LoginDto, RefreshDto, RegisterDto } from './dto';
 import { MailService } from '../mail/mail.service';
 
 @Injectable()
@@ -134,5 +134,102 @@ export class AuthService {
         data: { status: AccountStatus.ACTIVE }
       });
     });
+  }
+
+  async login(data: LoginDto) {
+    const account = await this.prismaService.accounts.findFirst({
+      select: {
+        id: true,
+        password: true,
+        status: true
+      },
+      where: { email: data.email }
+    });
+
+    if (!account) {
+      throw new CustomException(
+        CustomErrorMessage.COMMON__ACCOUNT_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+        CustomErrorCode.COMMON__ACCOUNT_NOT_FOUND
+      );
+    }
+
+    if (account.status !== AccountStatus.ACTIVE) {
+      throw new CustomException(
+        CustomErrorMessage.LOGIN__ACCOUNT_NOT_VERIFIED,
+        HttpStatus.FORBIDDEN,
+        CustomErrorCode.LOGIN__ACCOUNT_NOT_VERIFIED
+      );
+    }
+
+    if (!bcrypt.compareSync(data.password, account.password)) {
+      throw new ForbiddenException();
+    }
+
+    const accessToken = this.signToken(EJwtType.ACCESS, account.id);
+    const refreshToken = this.signToken(EJwtType.REFRESH, account.id);
+
+    const session = await this.prismaService.sessions.findFirst({
+      select: {
+        id: true
+      },
+      where: { accountId: account.id }
+    });
+
+    if (session) {
+      await this.prismaService.sessions.update({
+        where: {
+          id: session.id
+        },
+        data: {
+          refreshToken
+        }
+      });
+    } else {
+      await this.prismaService.sessions.create({
+        data: { account: { connect: { id: account.id } }, refreshToken }
+      });
+    }
+
+    return { accessToken, refreshToken };
+  }
+
+  async refresh(data: RefreshDto, accountId: string) {
+    const session = await this.prismaService.sessions.findFirst({
+      select: {
+        id: true,
+        accountId: true
+      },
+      where: { accountId, refreshToken: data.refreshToken }
+    });
+
+    if (!session) {
+      throw new CustomException(
+        CustomErrorMessage.REFRESH__SESSION_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+        CustomErrorCode.REFRESH__SESSION_NOT_FOUND
+      );
+    }
+
+    const accessToken = this.signToken(EJwtType.ACCESS, session.accountId);
+    const refreshToken = this.signToken(EJwtType.REFRESH, session.accountId);
+
+    await this.prismaService.sessions.update({
+      where: { id: session.id },
+      data: { refreshToken }
+    });
+
+    return { accessToken, refreshToken };
+  }
+
+  async logout(accountId: string) {
+    const session = await this.prismaService.sessions.findFirst({
+      select: { id: true },
+      where: { accountId }
+    });
+
+    if (session) {
+      await this.prismaService.sessions.delete({ where: { id: session.id } });
+    }
   }
 }
