@@ -64,7 +64,6 @@ model Sessions {
   accountId String   @map("account_id")
 
   id               String           @id @default(uuid())
-  accessToken      String           @map("access_token")
   refreshToken     String           @map("refresh_token")
   connectionStatus ConnectionStatus @default(OFFLINE) @map("connection_status")
   createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamptz()

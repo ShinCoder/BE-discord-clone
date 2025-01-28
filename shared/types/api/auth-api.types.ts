@@ -8,7 +8,7 @@ export type IRegisterData = {
 };
 
 export type ILoginData = {
-  username: string;
+  email: string;
   password: string;
 };
 
@@ -19,4 +19,8 @@ export type ILoginResult = {
 
 export type IVerifyData = {
   verifyToken: string;
+};
+
+export type IRefreshData = {
+  refreshToken: string;
 };
