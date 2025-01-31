@@ -17,6 +17,7 @@ enum AccountStatus {
 
 enum RelationshipStatus {
   PENDING
+  REQUESTING
   FRIEND
   BLOCKED
 
@@ -78,7 +79,7 @@ model Relationships {
   target    Accounts @relation(fields: [targetId], references: [id], name: "in_relationship_with")
   targetId  String   @map("target_id")
 
-  status    RelationshipStatus @default(PENDING)
+  status    RelationshipStatus 
   createdAt DateTime           @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt DateTime           @updatedAt() @map("updated_at") @db.Timestamptz()
 

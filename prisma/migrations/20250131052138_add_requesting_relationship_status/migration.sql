@@ -1,0 +1,5 @@
+-- AlterEnum
+ALTER TYPE "RELATIONSHIP_STATUS" ADD VALUE 'REQUESTING';
+
+-- AlterTable
+ALTER TABLE "relationships" ALTER COLUMN "status" DROP DEFAULT;

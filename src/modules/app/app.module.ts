@@ -7,6 +7,7 @@ import { JwtAtStrategy, JwtRtStrategy, JwtVtStrategy } from 'src/strategies';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { UserModule } from '../user/user.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -31,7 +32,8 @@ import { AppService } from './app.service';
         WEBAPP_VERIFY_URL: Joi.string().required()
       })
     }),
-    AuthModule
+    AuthModule,
+    UserModule
   ],
   controllers: [AppController],
   providers: [AppService, JwtAtStrategy, JwtRtStrategy, JwtVtStrategy]
