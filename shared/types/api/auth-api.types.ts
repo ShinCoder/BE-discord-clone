@@ -12,10 +12,12 @@ export type ILoginData = {
   password: string;
 };
 
-export type ILoginResult = {
+export type ITokenDto = {
   accessToken: string;
   refreshToken: string;
 };
+
+export type ILoginResult = ITokenDto;
 
 export type IVerifyData = {
   verifyToken: string;
@@ -25,7 +27,4 @@ export type IRefreshData = {
   refreshToken: string;
 };
 
-export type IRefreshResult = {
-  accessToken: string;
-  refreshToken: string;
-};
+export type IRefreshResult = ITokenDto;
