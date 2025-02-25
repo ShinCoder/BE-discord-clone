@@ -29,7 +29,8 @@ import { UserModule } from '../user/user.module';
         MAIL_PASS: Joi.string().required(),
         MAIL_FROM: Joi.string().required(),
         WEBAPP_BASE_URL: Joi.string().required(),
-        WEBAPP_VERIFY_URL: Joi.string().required()
+        WEBAPP_VERIFY_URL: Joi.string().required(),
+        ALLOWED_ORIGIN: Joi.string().required()
       })
     }),
     AuthModule,

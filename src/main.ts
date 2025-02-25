@@ -31,6 +31,10 @@ async function bootstrap() {
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
 
+  app.enableCors({
+    origin: configService.get<string>('ALLOWED_ORIGIN').split(';')
+  });
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle('API')
     .setDescription('API')
