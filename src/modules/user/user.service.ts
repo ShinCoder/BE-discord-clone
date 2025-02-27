@@ -2,6 +2,7 @@ import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import {
   AccountStatus,
   ConnectionStatus,
+  Prisma,
   RelationshipStatus
 } from '@prisma/client';
 
@@ -16,6 +17,89 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class UserService {
   constructor(private readonly prismaService: PrismaService) {}
+
+  private verifySelfInvoke(id1: string, id2: string) {
+    if (id1 === id2)
+      throw new CustomException(
+        CustomErrorMessage.COMMON__INVALID_SELF_INVOKE,
+        HttpStatus.BAD_REQUEST,
+        CustomErrorCode.COMMON__INVALID_SELF_INVOKE
+      );
+  }
+
+  private async verifyAccounts(
+    tx: Prisma.TransactionClient,
+    accountId: string,
+    targetId: string
+  ) {
+    const account = await tx.accounts.findFirst({
+      select: {
+        id: true,
+        relationship: {
+          select: {
+            status: true
+          },
+          where: {
+            targetId
+          }
+        }
+      },
+      where: { id: accountId, status: AccountStatus.ACTIVE }
+    });
+    if (!account)
+      throw new CustomException(
+        CustomErrorMessage.COMMON__ACCOUNT_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+        CustomErrorCode.COMMON__ACCOUNT_NOT_FOUND
+      );
+
+    const target = await tx.accounts.findFirst({
+      select: {
+        id: true,
+        relationship: {
+          select: {
+            status: true
+          },
+          where: {
+            targetId: accountId
+          }
+        }
+      },
+      where: { id: targetId, status: AccountStatus.ACTIVE }
+    });
+    if (!target)
+      throw new CustomException(
+        CustomErrorMessage.COMMON__TARGET_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+        CustomErrorCode.COMMON__TARGET_NOT_FOUND
+      );
+
+    return { account, target };
+  }
+
+  private async deleteBothRelationship(
+    tx: Prisma.TransactionClient,
+    accountId: string,
+    targetId: string
+  ) {
+    await tx.relationships.delete({
+      where: {
+        accountId_targetId: {
+          accountId,
+          targetId
+        }
+      }
+    });
+
+    await tx.relationships.delete({
+      where: {
+        accountId_targetId: {
+          accountId: targetId,
+          targetId: accountId
+        }
+      }
+    });
+  }
 
   async getMe(userId: string) {
     const { user, pinnedDms } = await this.prismaService.$transaction(
@@ -484,56 +568,14 @@ export class UserService {
     accountId: string,
     targetId: string
   ) {
-    if (accountId === targetId) {
-      throw new CustomException(
-        CustomErrorMessage.COMMON__INVALID_SELF_INVOKE,
-        HttpStatus.BAD_REQUEST,
-        CustomErrorCode.COMMON__INVALID_SELF_INVOKE
-      );
-    }
+    this.verifySelfInvoke(accountId, targetId);
 
     await this.prismaService.$transaction(async (tx) => {
-      const account = await tx.accounts.findFirst({
-        select: {
-          id: true,
-          relationship: {
-            select: {
-              status: true
-            },
-            where: {
-              targetId
-            }
-          }
-        },
-        where: { id: accountId }
-      });
-      if (!account)
-        throw new CustomException(
-          CustomErrorMessage.COMMON__ACCOUNT_NOT_FOUND,
-          HttpStatus.NOT_FOUND,
-          CustomErrorCode.COMMON__ACCOUNT_NOT_FOUND
-        );
-
-      const target = await tx.accounts.findFirst({
-        select: {
-          id: true,
-          relationship: {
-            select: {
-              status: true
-            },
-            where: {
-              targetId: accountId
-            }
-          }
-        },
-        where: { id: targetId }
-      });
-      if (!target)
-        throw new CustomException(
-          CustomErrorMessage.COMMON__TARGET_NOT_FOUND,
-          HttpStatus.NOT_FOUND,
-          CustomErrorCode.COMMON__TARGET_NOT_FOUND
-        );
+      const { account, target } = await this.verifyAccounts(
+        tx,
+        accountId,
+        targetId
+      );
 
       if (
         account.relationship[0]?.status === RelationshipStatus.PENDING &&
@@ -564,23 +606,7 @@ export class UserService {
             }
           });
         } else {
-          await tx.relationships.delete({
-            where: {
-              accountId_targetId: {
-                accountId: account.id,
-                targetId: target.id
-              }
-            }
-          });
-
-          await tx.relationships.delete({
-            where: {
-              accountId_targetId: {
-                accountId: target.id,
-                targetId: account.id
-              }
-            }
-          });
+          await this.deleteBothRelationship(tx, account.id, target.id);
         }
       } else {
         throw new CustomException(
@@ -593,78 +619,20 @@ export class UserService {
   }
 
   async cancelFriendRequest(accountId: string, targetId: string) {
-    if (accountId === targetId) {
-      throw new CustomException(
-        CustomErrorMessage.COMMON__INVALID_SELF_INVOKE,
-        HttpStatus.BAD_REQUEST,
-        CustomErrorCode.COMMON__INVALID_SELF_INVOKE
-      );
-    }
+    this.verifySelfInvoke(accountId, targetId);
 
     await this.prismaService.$transaction(async (tx) => {
-      const account = await tx.accounts.findFirst({
-        select: {
-          id: true,
-          relationship: {
-            select: {
-              status: true
-            },
-            where: {
-              targetId
-            }
-          }
-        },
-        where: { id: accountId }
-      });
-      if (!account)
-        throw new CustomException(
-          CustomErrorMessage.COMMON__ACCOUNT_NOT_FOUND,
-          HttpStatus.NOT_FOUND,
-          CustomErrorCode.COMMON__ACCOUNT_NOT_FOUND
-        );
-
-      const target = await tx.accounts.findFirst({
-        select: {
-          id: true,
-          relationship: {
-            select: {
-              status: true
-            },
-            where: {
-              targetId: accountId
-            }
-          }
-        },
-        where: { id: targetId }
-      });
-      if (!target)
-        throw new CustomException(
-          CustomErrorMessage.COMMON__TARGET_NOT_FOUND,
-          HttpStatus.NOT_FOUND,
-          CustomErrorCode.COMMON__TARGET_NOT_FOUND
-        );
+      const { account, target } = await this.verifyAccounts(
+        tx,
+        accountId,
+        targetId
+      );
 
       if (
         account.relationship[0]?.status === RelationshipStatus.REQUESTING &&
         target.relationship[0]?.status === RelationshipStatus.PENDING
       ) {
-        await tx.relationships.delete({
-          where: {
-            accountId_targetId: {
-              accountId: account.id,
-              targetId: target.id
-            }
-          }
-        });
-
-        await tx.relationships.delete({
-          where: {
-            accountId_targetId: {
-              accountId: target.id,
-              targetId: account.id
-            }
-          }
-        });
+        await this.deleteBothRelationship(tx, account.id, target.id);
       } else {
         throw new CustomException(
           CustomErrorMessage.FRIEND_REQUEST_FEEDBACK__NO_REQUEST,
@@ -676,78 +644,20 @@ export class UserService {
   }
 
   async removeFriend(accountId: string, targetId: string) {
-    if (accountId === targetId) {
-      throw new CustomException(
-        CustomErrorMessage.COMMON__INVALID_SELF_INVOKE,
-        HttpStatus.BAD_REQUEST,
-        CustomErrorCode.COMMON__INVALID_SELF_INVOKE
-      );
-    }
+    this.verifySelfInvoke(accountId, targetId);
 
     await this.prismaService.$transaction(async (tx) => {
-      const account = await tx.accounts.findFirst({
-        select: {
-          id: true,
-          relationship: {
-            select: {
-              status: true
-            },
-            where: {
-              targetId
-            }
-          }
-        },
-        where: { id: accountId }
-      });
-      if (!account)
-        throw new CustomException(
-          CustomErrorMessage.COMMON__ACCOUNT_NOT_FOUND,
-          HttpStatus.NOT_FOUND,
-          CustomErrorCode.COMMON__ACCOUNT_NOT_FOUND
-        );
-
-      const target = await tx.accounts.findFirst({
-        select: {
-          id: true,
-          relationship: {
-            select: {
-              status: true
-            },
-            where: {
-              targetId: accountId
-            }
-          }
-        },
-        where: { id: targetId }
-      });
-      if (!target)
-        throw new CustomException(
-          CustomErrorMessage.COMMON__TARGET_NOT_FOUND,
-          HttpStatus.NOT_FOUND,
-          CustomErrorCode.COMMON__TARGET_NOT_FOUND
-        );
+      const { account, target } = await this.verifyAccounts(
+        tx,
+        accountId,
+        targetId
+      );
 
       if (
         account.relationship[0]?.status === RelationshipStatus.FRIEND &&
         target.relationship[0]?.status === RelationshipStatus.FRIEND
       ) {
-        await tx.relationships.delete({
-          where: {
-            accountId_targetId: {
-              accountId: account.id,
-              targetId: target.id
-            }
-          }
-        });
-
-        await tx.relationships.delete({
-          where: {
-            accountId_targetId: {
-              accountId: target.id,
-              targetId: account.id
-            }
-          }
-        });
+        await this.deleteBothRelationship(tx, account.id, target.id);
       } else {
         throw new CustomException(
           CustomErrorMessage.REMOVE_FRIEND__NOT_FRIEND,

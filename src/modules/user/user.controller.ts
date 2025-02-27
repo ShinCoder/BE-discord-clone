@@ -32,6 +32,10 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  private authenticateAccount(id: string, accountId: string) {
+    if (id !== accountId) throw new ForbiddenException('Forbidden resource');
+  }
+
   @UseGuards(JwtAtGuard)
   @Get('me')
   getMe(@Req() req: IRequestWithUser): Promise<IGetMeResult> {
@@ -44,8 +48,7 @@ export class UserController {
     @Req() req: IRequestWithUser,
     @Param('id') accountId: string
   ): Promise<IGetFriendsResult> {
-    if (req.user.sub !== accountId)
-      throw new ForbiddenException('Forbidden resource');
+    this.authenticateAccount(req.user.sub, accountId);
 
     return this.userService.getFriends(accountId);
   }
@@ -57,8 +60,7 @@ export class UserController {
     @Param('id') accountId: string,
     @Body() body: SendFriendRequestDto
   ) {
-    if (req.user.sub !== accountId)
-      throw new ForbiddenException('Forbidden resource');
+    this.authenticateAccount(req.user.sub, accountId);
 
     return this.userService.sendFriendRequest(accountId, body);
   }
@@ -69,8 +71,7 @@ export class UserController {
     @Req() req: IRequestWithUser,
     @Param('id') accountId: string
   ): Promise<IGetFriendRequestsResult> {
-    if (req.user.sub !== accountId)
-      throw new ForbiddenException('Forbidden resource');
+    this.authenticateAccount(req.user.sub, accountId);
 
     return this.userService.getPendingFriendRequest(accountId);
   }
@@ -83,8 +84,7 @@ export class UserController {
     @Param('id') accountId: string,
     @Body() body: AcceptFriendRequestDto
   ) {
-    if (req.user.sub !== accountId)
-      throw new ForbiddenException('Forbidden resource');
+    this.authenticateAccount(req.user.sub, accountId);
 
     return this.userService.feedbackFriendRequest(
       'accept',
@@ -101,8 +101,7 @@ export class UserController {
     @Param('id') accountId: string,
     @Body() body: IgnoreFriendRequestDto
   ) {
-    if (req.user.sub !== accountId)
-      throw new ForbiddenException('Forbidden resource');
+    this.authenticateAccount(req.user.sub, accountId);
 
     return this.userService.feedbackFriendRequest(
       'ignore',
@@ -119,8 +118,7 @@ export class UserController {
     @Param('id') accountId: string,
     @Param('target') targetId: string
   ) {
-    if (req.user.sub !== accountId)
-      throw new ForbiddenException('Forbidden resource');
+    this.authenticateAccount(req.user.sub, accountId);
 
     return this.userService.cancelFriendRequest(accountId, targetId);
   }
@@ -133,8 +131,7 @@ export class UserController {
     @Param('id') accountId: string,
     @Param('target') targetId: string
   ) {
-    if (req.user.sub !== accountId)
-      throw new ForbiddenException('Forbidden resource');
+    this.authenticateAccount(req.user.sub, accountId);
 
     return this.userService.removeFriend(accountId, targetId);
   }
