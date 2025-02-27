@@ -183,6 +183,247 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "getFriends",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOST}}/api/users/ba39c812-5428-4f80-b86a-8deb81fb2101/friends",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"ba39c812-5428-4f80-b86a-8deb81fb2101",
+								"friends"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sendFriendRequest",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"targetUsername\": \"shin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/api/users/c283a9e3-d256-466b-8d99-70cdd5f64741/friend-request",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"c283a9e3-d256-466b-8d99-70cdd5f64741",
+								"friend-request"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getFriendRequests",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOST}}/api/users/c283a9e3-d256-466b-8d99-70cdd5f64741/friend-requests",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"c283a9e3-d256-466b-8d99-70cdd5f64741",
+								"friend-requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "acceptFriendRequest",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"targetId\": \"ba39c812-5428-4f80-b86a-8deb81fb2101\" \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/api/users/c283a9e3-d256-466b-8d99-70cdd5f64741/friend-request/accept",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"c283a9e3-d256-466b-8d99-70cdd5f64741",
+								"friend-request",
+								"accept"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ignoreFriendRequest",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"targetId\": \"ba39c812-5428-4f80-b86a-8deb81fb2101\" \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/api/users/c283a9e3-d256-466b-8d99-70cdd5f64741/friend-request/ignore",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"c283a9e3-d256-466b-8d99-70cdd5f64741",
+								"friend-request",
+								"ignore"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cancelFriendRequest",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{HOST}}/api/users/c283a9e3-d256-466b-8d99-70cdd5f64741/friend-request/ba39c812-5428-4f80-b86a-8deb81fb2101",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"c283a9e3-d256-466b-8d99-70cdd5f64741",
+								"friend-request",
+								"ba39c812-5428-4f80-b86a-8deb81fb2101"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "removeFriend",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{HOST}}/api/users/c283a9e3-d256-466b-8d99-70cdd5f64741/friend/ba39c812-5428-4f80-b86a-8deb81fb2101",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"c283a9e3-d256-466b-8d99-70cdd5f64741",
+								"friend",
+								"ba39c812-5428-4f80-b86a-8deb81fb2101"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
