@@ -49,3 +49,27 @@ export type IUserWithSettingsDto = IUserDto & {
 };
 
 export type IGetMeResult = IUserWithSettingsDto;
+
+export type IGetFriendsResult = {
+  friends: Array<
+    IUserWithRelationshipDto & { connectionStatus: EConnectionStatus }
+  >;
+};
+
+export type ISendFriendRequestData = {
+  targetId?: string;
+  targetUsername?: string;
+};
+
+export type IGetFriendRequestsResult = {
+  incomingRequests: Array<IUserDto>;
+  outgoingRequests: Array<IUserDto>;
+};
+
+export type IAcceptFriendRequestData = {
+  targetId: string;
+};
+
+export type IIgnoreFriendRequestData = {
+  targetId: string;
+};
