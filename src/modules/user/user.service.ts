@@ -7,7 +7,7 @@ import {
 } from '@prisma/client';
 
 import { CustomErrorCode, CustomErrorMessage } from 'shared/constants';
-import { EConnectionStatus } from 'shared/types/api';
+import { EConnectionStatus, ERelationshipStatus } from 'shared/types/api';
 import { CustomException } from 'src/exceptions';
 import { AccountSettings } from 'src/types/user.types';
 
@@ -236,7 +236,7 @@ export class UserService {
                   ? {
                       userId: relationshipWith[0].accountId,
                       targetId: relationshipWith[0].targetId,
-                      status: EConnectionStatus[relationshipWith[0].status],
+                      status: ERelationshipStatus[relationshipWith[0].status],
                       updatedAt: relationshipWith[0].updatedAt.toISOString()
                     }
                   : undefined,
@@ -326,7 +326,7 @@ export class UserService {
             ? {
                 userId: _user.relationshipWith[0].accountId,
                 targetId: _user.relationshipWith[0].targetId,
-                status: EConnectionStatus[_user.relationshipWith[0].status],
+                status: ERelationshipStatus[_user.relationshipWith[0].status],
                 updatedAt: _user.relationshipWith[0].updatedAt.toISOString()
               }
             : undefined,
@@ -507,7 +507,18 @@ export class UserService {
           bannerColor: true,
           about: true,
           createdAt: true,
-          updatedAt: true
+          updatedAt: true,
+          relationshipWith: {
+            select: {
+              accountId: true,
+              targetId: true,
+              status: true,
+              updatedAt: true
+            },
+            where: {
+              accountId: account.id
+            }
+          }
         },
         where: {
           relationship: {
@@ -532,7 +543,18 @@ export class UserService {
           bannerColor: true,
           about: true,
           createdAt: true,
-          updatedAt: true
+          updatedAt: true,
+          relationshipWith: {
+            select: {
+              accountId: true,
+              targetId: true,
+              status: true,
+              updatedAt: true
+            },
+            where: {
+              accountId: account.id
+            }
+          }
         },
         where: {
           relationship: {
@@ -552,13 +574,31 @@ export class UserService {
         ...e,
         dateOfBirth: e.dateOfBirth.toISOString(),
         createdAt: e.createdAt.toISOString(),
-        updatedAt: e.updatedAt.toISOString()
+        updatedAt: e.updatedAt.toISOString(),
+        inRelationshipWith:
+          e.relationshipWith.length === 1
+            ? {
+                userId: e.relationshipWith[0].accountId,
+                targetId: e.relationshipWith[0].targetId,
+                status: ERelationshipStatus[e.relationshipWith[0].status],
+                updatedAt: e.relationshipWith[0].updatedAt.toISOString()
+              }
+            : undefined
       })),
       outgoingRequests: result.outgoingRequests.map((e) => ({
         ...e,
         dateOfBirth: e.dateOfBirth.toISOString(),
         createdAt: e.createdAt.toISOString(),
-        updatedAt: e.updatedAt.toISOString()
+        updatedAt: e.updatedAt.toISOString(),
+        inRelationshipWith:
+          e.relationshipWith.length === 1
+            ? {
+                userId: e.relationshipWith[0].accountId,
+                targetId: e.relationshipWith[0].targetId,
+                status: ERelationshipStatus[e.relationshipWith[0].status],
+                updatedAt: e.relationshipWith[0].updatedAt.toISOString()
+              }
+            : undefined
       }))
     };
   }
