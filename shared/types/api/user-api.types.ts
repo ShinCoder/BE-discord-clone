@@ -73,3 +73,15 @@ export type IAcceptFriendRequestData = {
 export type IIgnoreFriendRequestData = {
   targetId: string;
 };
+
+export type IGetUserProfileResult = IUserDto &
+  WithRelationship &
+  WithConnectionStatus;
+
+export type IGetBlockedResult = {
+  blocked: Array<IUserDto & WithRelationship>;
+};
+
+export type IBlockData = {
+  targetId: string;
+};

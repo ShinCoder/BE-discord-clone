@@ -14,15 +14,18 @@ import {
 } from '@nestjs/common';
 
 import {
+  IGetBlockedResult,
   IGetFriendRequestsResult,
   IGetFriendsResult,
-  IGetMeResult
+  IGetMeResult,
+  IGetUserProfileResult
 } from 'shared/types/api';
 import { JwtAtGuard } from 'src/guards';
 import { IRequestWithUser } from 'src/types/auth.types';
 
 import {
   AcceptFriendRequestDto,
+  BlockDto,
   IgnoreFriendRequestDto,
   SendFriendRequestDto
 } from './dto';
@@ -134,5 +137,50 @@ export class UserController {
     this.authenticateAccount(req.user.sub, accountId);
 
     return this.userService.removeFriend(accountId, targetId);
+  }
+
+  @UseGuards(JwtAtGuard)
+  @Get(':id/profile')
+  async getUserProfile(
+    @Param('id') profileId: string,
+    @Req() req: IRequestWithUser
+  ): Promise<IGetUserProfileResult> {
+    return this.userService.getUserProfile(req.user.sub, profileId);
+  }
+
+  @UseGuards(JwtAtGuard)
+  @Get(':id/blocked')
+  async getBlockedUsers(
+    @Req() req: IRequestWithUser,
+    @Param('id') accountId: string
+  ): Promise<IGetBlockedResult> {
+    this.authenticateAccount(req.user.sub, accountId);
+
+    return this.userService.getBlockedUsers(accountId);
+  }
+
+  @UseGuards(JwtAtGuard)
+  @Post(':id/block')
+  async blockUser(
+    @Req() req: IRequestWithUser,
+    @Param('id') accountId: string,
+    @Body() body: BlockDto
+  ) {
+    this.authenticateAccount(req.user.sub, accountId);
+
+    return this.userService.blockUser(accountId, body.targetId);
+  }
+
+  @UseGuards(JwtAtGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':id/block/:target')
+  async unblockUser(
+    @Req() req: IRequestWithUser,
+    @Param('id') accountId: string,
+    @Param('target') targetId: string
+  ) {
+    this.authenticateAccount(req.user.sub, accountId);
+
+    return this.userService.unblockUser(accountId, targetId);
   }
 }
