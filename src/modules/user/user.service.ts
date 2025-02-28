@@ -7,7 +7,7 @@ import {
 } from '@prisma/client';
 
 import { CustomErrorCode, CustomErrorMessage } from 'shared/constants';
-import { EConnectionStatus } from 'shared/types/api';
+import { EConnectionStatus, ERelationshipStatus } from 'shared/types/api';
 import { CustomException } from 'src/exceptions';
 import { AccountSettings } from 'src/types/user.types';
 
@@ -236,7 +236,7 @@ export class UserService {
                   ? {
                       userId: relationshipWith[0].accountId,
                       targetId: relationshipWith[0].targetId,
-                      status: EConnectionStatus[relationshipWith[0].status],
+                      status: ERelationshipStatus[relationshipWith[0].status],
                       updatedAt: relationshipWith[0].updatedAt.toISOString()
                     }
                   : undefined,
@@ -316,25 +316,35 @@ export class UserService {
     });
 
     return {
-      friends: users.map((_user) => ({
-        ..._user,
-        dateOfBirth: _user.dateOfBirth.toISOString(),
-        createdAt: _user.createdAt.toISOString(),
-        updatedAt: _user.updatedAt.toISOString(),
-        inRelationshipWith:
-          _user.relationshipWith.length === 1
-            ? {
-                userId: _user.relationshipWith[0].accountId,
-                targetId: _user.relationshipWith[0].targetId,
-                status: EConnectionStatus[_user.relationshipWith[0].status],
-                updatedAt: _user.relationshipWith[0].updatedAt.toISOString()
-              }
-            : undefined,
-        connectionStatus:
-          _user.sessions.length > 0
-            ? EConnectionStatus[_user.sessions[0].connectionStatus]
-            : EConnectionStatus.OFFLINE
-      }))
+      friends: users.map((_user) => {
+        const {
+          dateOfBirth,
+          createdAt,
+          updatedAt,
+          relationshipWith,
+          sessions,
+          ...rest
+        } = _user;
+        return {
+          ...rest,
+          dateOfBirth: dateOfBirth.toISOString(),
+          createdAt: createdAt.toISOString(),
+          updatedAt: updatedAt.toISOString(),
+          inRelationshipWith:
+            relationshipWith.length === 1
+              ? {
+                  userId: relationshipWith[0].accountId,
+                  targetId: relationshipWith[0].targetId,
+                  status: ERelationshipStatus[_user.relationshipWith[0].status],
+                  updatedAt: relationshipWith[0].updatedAt.toISOString()
+                }
+              : undefined,
+          connectionStatus:
+            sessions.length > 0
+              ? EConnectionStatus[_user.sessions[0].connectionStatus]
+              : EConnectionStatus.OFFLINE
+        };
+      })
     };
   }
 
@@ -507,7 +517,18 @@ export class UserService {
           bannerColor: true,
           about: true,
           createdAt: true,
-          updatedAt: true
+          updatedAt: true,
+          relationshipWith: {
+            select: {
+              accountId: true,
+              targetId: true,
+              status: true,
+              updatedAt: true
+            },
+            where: {
+              accountId: account.id
+            }
+          }
         },
         where: {
           relationship: {
@@ -532,7 +553,18 @@ export class UserService {
           bannerColor: true,
           about: true,
           createdAt: true,
-          updatedAt: true
+          updatedAt: true,
+          relationshipWith: {
+            select: {
+              accountId: true,
+              targetId: true,
+              status: true,
+              updatedAt: true
+            },
+            where: {
+              accountId: account.id
+            }
+          }
         },
         where: {
           relationship: {
@@ -548,18 +580,44 @@ export class UserService {
     });
 
     return {
-      incomingRequests: result.incomingRequests.map((e) => ({
-        ...e,
-        dateOfBirth: e.dateOfBirth.toISOString(),
-        createdAt: e.createdAt.toISOString(),
-        updatedAt: e.updatedAt.toISOString()
-      })),
-      outgoingRequests: result.outgoingRequests.map((e) => ({
-        ...e,
-        dateOfBirth: e.dateOfBirth.toISOString(),
-        createdAt: e.createdAt.toISOString(),
-        updatedAt: e.updatedAt.toISOString()
-      }))
+      incomingRequests: result.incomingRequests.map((e) => {
+        const { dateOfBirth, createdAt, updatedAt, relationshipWith, ...rest } =
+          e;
+        return {
+          ...rest,
+          dateOfBirth: dateOfBirth.toISOString(),
+          createdAt: createdAt.toISOString(),
+          updatedAt: updatedAt.toISOString(),
+          inRelationshipWith:
+            relationshipWith.length === 1
+              ? {
+                  userId: relationshipWith[0].accountId,
+                  targetId: relationshipWith[0].targetId,
+                  status: ERelationshipStatus[relationshipWith[0].status],
+                  updatedAt: relationshipWith[0].updatedAt.toISOString()
+                }
+              : undefined
+        };
+      }),
+      outgoingRequests: result.outgoingRequests.map((e) => {
+        const { dateOfBirth, createdAt, updatedAt, relationshipWith, ...rest } =
+          e;
+        return {
+          ...rest,
+          dateOfBirth: dateOfBirth.toISOString(),
+          createdAt: createdAt.toISOString(),
+          updatedAt: updatedAt.toISOString(),
+          inRelationshipWith:
+            relationshipWith.length === 1
+              ? {
+                  userId: relationshipWith[0].accountId,
+                  targetId: relationshipWith[0].targetId,
+                  status: ERelationshipStatus[relationshipWith[0].status],
+                  updatedAt: relationshipWith[0].updatedAt.toISOString()
+                }
+              : undefined
+        };
+      })
     };
   }
 
@@ -663,6 +721,231 @@ export class UserService {
           CustomErrorMessage.REMOVE_FRIEND__NOT_FRIEND,
           HttpStatus.CONFLICT,
           CustomErrorCode.REMOVE_FRIEND__NOT_FRIEND
+        );
+      }
+    });
+  }
+
+  async getUserProfile(accountId: string, profileId: string) {
+    const profile = await this.prismaService.accounts.findFirst({
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        displayName: true,
+        dateOfBirth: true,
+        phoneNumber: true,
+        avatar: true,
+        pronouns: true,
+        bannerColor: true,
+        about: true,
+        createdAt: true,
+        updatedAt: true,
+        relationshipWith: {
+          select: {
+            accountId: true,
+            targetId: true,
+            status: true,
+            updatedAt: true
+          },
+          where: {
+            accountId
+          }
+        },
+        sessions: {
+          select: {
+            id: true,
+            connectionStatus: true
+          },
+          where: {
+            connectionStatus: {
+              not: ConnectionStatus.OFFLINE
+            }
+          }
+        }
+      },
+      where: {
+        id: profileId
+      }
+    });
+
+    const {
+      dateOfBirth,
+      createdAt,
+      updatedAt,
+      relationshipWith,
+      sessions,
+      ...rest
+    } = profile;
+    return {
+      ...rest,
+      dateOfBirth: dateOfBirth.toISOString(),
+      createdAt: createdAt.toISOString(),
+      updatedAt: updatedAt.toISOString(),
+      inRelationshipWith:
+        relationshipWith.length === 1
+          ? {
+              userId: relationshipWith[0].accountId,
+              targetId: relationshipWith[0].targetId,
+              status: ERelationshipStatus[relationshipWith[0].status],
+              updatedAt: relationshipWith[0].updatedAt.toISOString()
+            }
+          : undefined,
+      connectionStatus:
+        sessions.length > 0
+          ? EConnectionStatus[sessions[0].connectionStatus]
+          : EConnectionStatus.OFFLINE
+    };
+  }
+
+  async getBlockedUsers(accountId: string) {
+    const users = await this.prismaService.$transaction(async (tx) => {
+      const account = await tx.accounts.findFirst({
+        select: {
+          id: true
+        },
+        where: { id: accountId }
+      });
+      if (!account)
+        throw new CustomException(
+          CustomErrorMessage.COMMON__ACCOUNT_NOT_FOUND,
+          HttpStatus.NOT_FOUND,
+          CustomErrorCode.COMMON__ACCOUNT_NOT_FOUND
+        );
+
+      return await tx.accounts.findMany({
+        select: {
+          id: true,
+          email: true,
+          username: true,
+          displayName: true,
+          dateOfBirth: true,
+          phoneNumber: true,
+          avatar: true,
+          pronouns: true,
+          bannerColor: true,
+          about: true,
+          createdAt: true,
+          updatedAt: true,
+          relationshipWith: {
+            select: {
+              accountId: true,
+              targetId: true,
+              status: true,
+              updatedAt: true
+            },
+            where: {
+              accountId: account.id
+            }
+          }
+        },
+        where: {
+          status: AccountStatus.ACTIVE,
+          relationshipWith: {
+            some: {
+              accountId: account.id,
+              status: RelationshipStatus.BLOCKED
+            }
+          }
+        }
+      });
+    });
+
+    return {
+      blocked: users.map((_user) => {
+        const { dateOfBirth, createdAt, updatedAt, relationshipWith, ...rest } =
+          _user;
+        return {
+          ...rest,
+          dateOfBirth: dateOfBirth.toISOString(),
+          createdAt: createdAt.toISOString(),
+          updatedAt: updatedAt.toISOString(),
+          inRelationshipWith:
+            relationshipWith.length === 1
+              ? {
+                  userId: relationshipWith[0].accountId,
+                  targetId: relationshipWith[0].targetId,
+                  status: ERelationshipStatus[_user.relationshipWith[0].status],
+                  updatedAt: relationshipWith[0].updatedAt.toISOString()
+                }
+              : undefined
+        };
+      })
+    };
+  }
+
+  async blockUser(accountId: string, targetId: string) {
+    this.verifySelfInvoke(accountId, targetId);
+
+    await this.prismaService.$transaction(async (tx) => {
+      const { account, target } = await this.verifyAccounts(
+        tx,
+        accountId,
+        targetId
+      );
+
+      await tx.relationships.upsert({
+        where: {
+          accountId_targetId: {
+            accountId: account.id,
+            targetId: target.id
+          }
+        },
+        update: {
+          status: RelationshipStatus.BLOCKED
+        },
+        create: {
+          account: {
+            connect: {
+              id: account.id
+            }
+          },
+          target: {
+            connect: {
+              id: target.id
+            }
+          },
+          status: RelationshipStatus.BLOCKED
+        }
+      });
+
+      if (target.relationship[0]?.status !== RelationshipStatus.BLOCKED) {
+        await tx.relationships.delete({
+          where: {
+            accountId_targetId: {
+              accountId: target.id,
+              targetId: account.id
+            }
+          }
+        });
+      }
+    });
+  }
+
+  async unblockUser(accountId: string, targetId: string) {
+    this.verifySelfInvoke(accountId, targetId);
+
+    await this.prismaService.$transaction(async (tx) => {
+      const { account, target } = await this.verifyAccounts(
+        tx,
+        accountId,
+        targetId
+      );
+
+      if (account.relationship[0]?.status === RelationshipStatus.BLOCKED) {
+        await tx.relationships.delete({
+          where: {
+            accountId_targetId: {
+              accountId: account.id,
+              targetId: target.id
+            }
+          }
+        });
+      } else {
+        throw new CustomException(
+          CustomErrorMessage.UNBLOCK__NOT_BLOCKED,
+          HttpStatus.CONFLICT,
+          CustomErrorCode.UNBLOCK__NOT_BLOCKED
         );
       }
     });

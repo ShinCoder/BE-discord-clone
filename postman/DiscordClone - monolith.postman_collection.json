@@ -424,6 +424,136 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "getUserProfile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOST}}/api/users/ba39c812-5428-4f80-b86a-8deb81fb2101/profile",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"ba39c812-5428-4f80-b86a-8deb81fb2101",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getBlockedUsers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOST}}/api/users/c283a9e3-d256-466b-8d99-70cdd5f64741/blocked",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"c283a9e3-d256-466b-8d99-70cdd5f64741",
+								"blocked"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "blockUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"targetId\": \"ba39c812-5428-4f80-b86a-8deb81fb2101\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/api/users/c283a9e3-d256-466b-8d99-70cdd5f64741/block",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"c283a9e3-d256-466b-8d99-70cdd5f64741",
+								"block"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "unblockUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{HOST}}/api/users/c283a9e3-d256-466b-8d99-70cdd5f64741/block/ba39c812-5428-4f80-b86a-8deb81fb2101",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"c283a9e3-d256-466b-8d99-70cdd5f64741",
+								"block",
+								"ba39c812-5428-4f80-b86a-8deb81fb2101"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}

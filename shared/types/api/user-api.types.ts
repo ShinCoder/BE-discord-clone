@@ -32,15 +32,17 @@ export type IRelationshipDto = {
   updatedAt: string;
 };
 
-export type IUserWithRelationshipDto = IUserDto & {
+export type WithRelationship = {
   inRelationshipWith?: IRelationshipDto;
+};
+
+export type WithConnectionStatus = {
+  connectionStatus: EConnectionStatus;
 };
 
 export type IUserSettingsDto = {
   dmSettings: {
-    pinnedDms: Array<
-      IUserWithRelationshipDto & { connectionStatus: EConnectionStatus }
-    >;
+    pinnedDms: Array<IUserDto & WithRelationship & WithConnectionStatus>;
   };
 };
 
@@ -51,9 +53,7 @@ export type IUserWithSettingsDto = IUserDto & {
 export type IGetMeResult = IUserWithSettingsDto;
 
 export type IGetFriendsResult = {
-  friends: Array<
-    IUserWithRelationshipDto & { connectionStatus: EConnectionStatus }
-  >;
+  friends: Array<IUserDto & WithRelationship & WithConnectionStatus>;
 };
 
 export type ISendFriendRequestData = {
@@ -62,8 +62,8 @@ export type ISendFriendRequestData = {
 };
 
 export type IGetFriendRequestsResult = {
-  incomingRequests: Array<IUserDto>;
-  outgoingRequests: Array<IUserDto>;
+  incomingRequests: Array<IUserDto & WithRelationship>;
+  outgoingRequests: Array<IUserDto & WithRelationship>;
 };
 
 export type IAcceptFriendRequestData = {
@@ -71,5 +71,17 @@ export type IAcceptFriendRequestData = {
 };
 
 export type IIgnoreFriendRequestData = {
+  targetId: string;
+};
+
+export type IGetUserProfileResult = IUserDto &
+  WithRelationship &
+  WithConnectionStatus;
+
+export type IGetBlockedResult = {
+  blocked: Array<IUserDto & WithRelationship>;
+};
+
+export type IBlockData = {
   targetId: string;
 };
