@@ -556,6 +556,128 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "userSettings",
+			"item": [
+				{
+					"name": "pinDm",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"targetId\": \"ba39c812-5428-4f80-b86a-8deb81fb2101\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/api/users/c283a9e3-d256-466b-8d99-70cdd5f64741/settings/direct-message/pin",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"c283a9e3-d256-466b-8d99-70cdd5f64741",
+								"settings",
+								"direct-message",
+								"pin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "unpinDm",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{HOST}}/api/users/c283a9e3-d256-466b-8d99-70cdd5f64741/settings/direct-message/pin/ba39c812-5428-4f80-b86a-8deb81fb2101",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"c283a9e3-d256-466b-8d99-70cdd5f64741",
+								"settings",
+								"direct-message",
+								"pin",
+								"ba39c812-5428-4f80-b86a-8deb81fb2101"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "directMessages",
+			"item": [
+				{
+					"name": "getDirectMessages",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOST}}/api/direct-messages?senderId=c283a9e3-d256-466b-8d99-70cdd5f64741&targetId=ba39c812-5428-4f80-b86a-8deb81fb2101",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"api",
+								"direct-messages"
+							],
+							"query": [
+								{
+									"key": "senderId",
+									"value": "c283a9e3-d256-466b-8d99-70cdd5f64741"
+								},
+								{
+									"key": "targetId",
+									"value": "ba39c812-5428-4f80-b86a-8deb81fb2101"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [

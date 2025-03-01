@@ -4,6 +4,7 @@ export const CustomErrorCode = {
   SEND_FRIEND_REQUEST__NO_TARGET: 40002,
 
   LOGIN__ACCOUNT_NOT_VERIFIED: 40300,
+  SEND_DM__BLOCKED: 40301,
 
   COMMON__ACCOUNT_NOT_FOUND: 40400,
   COMMON__TARGET_NOT_FOUND: 40401,
@@ -18,7 +19,7 @@ export const CustomErrorCode = {
   FRIEND_REQUEST_FEEDBACK__NO_REQUEST: 40905,
   REMOVE_FRIEND__NOT_FRIEND: 40906,
   UNBLOCK__NOT_BLOCKED: 40907,
-  PIN_DM__ALREADY_PINNED: 40908
+  PIN_DM__ALREADY_PINNED: 40908,
 };
 
 export const CustomErrorMessage = {
@@ -48,5 +49,7 @@ export const CustomErrorMessage = {
 
   UNBLOCK__NOT_BLOCKED: 'This user is not blocked',
 
-  PIN_DM__ALREADY_PINNED: 'This user is already pinned'
+  PIN_DM__ALREADY_PINNED: 'This user is already pinned',
+
+  SEND_DM__BLOCKED: 'This user blocked you'
 };
