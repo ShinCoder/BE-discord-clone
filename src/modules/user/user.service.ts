@@ -200,7 +200,7 @@ export class UserService {
           const _e = pinnedAccounts.find((_account) => _account.id === e);
 
           if (_e) {
-            return [...accum, e];
+            return [...accum, _e];
           } else {
             return accum;
           }

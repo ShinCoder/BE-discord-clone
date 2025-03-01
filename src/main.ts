@@ -8,6 +8,8 @@ import { CustomExceptionFilter } from 'src/exception-filters';
 import { CustomException } from 'src/exceptions';
 import { AppModule } from 'src/modules/app/app.module';
 
+import { SocketIOAdapter } from './modules/gateway/socket-io-adapter';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get<ConfigService>(ConfigService);
@@ -34,6 +36,8 @@ async function bootstrap() {
   app.enableCors({
     origin: configService.get<string>('ALLOWED_ORIGIN').split(';')
   });
+
+  app.useWebSocketAdapter(new SocketIOAdapter(app, configService));
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('API')

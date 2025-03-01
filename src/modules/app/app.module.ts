@@ -5,9 +5,10 @@ import * as Joi from 'joi';
 import { AuthModule } from 'src/modules/auth/auth.module';
 import { JwtAtStrategy, JwtRtStrategy, JwtVtStrategy } from 'src/strategies';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { DirectMessageModule } from '../dm/dm.module';
+import { GatewayModule } from '../gateway/gateway.module';
 import { UserModule } from '../user/user.module';
+import { UserSettingsModule } from '../userSettings/userSettings.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -34,9 +35,11 @@ import { UserModule } from '../user/user.module';
       })
     }),
     AuthModule,
-    UserModule
+    UserModule,
+    UserSettingsModule,
+    DirectMessageModule,
+    GatewayModule
   ],
-  controllers: [AppController],
-  providers: [AppService, JwtAtStrategy, JwtRtStrategy, JwtVtStrategy]
+  providers: [JwtAtStrategy, JwtRtStrategy, JwtVtStrategy]
 })
 export class AppModule {}

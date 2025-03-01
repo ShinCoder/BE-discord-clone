@@ -1,14 +1,18 @@
 import { ForbiddenException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { AccountStatus } from '@prisma/client';
+import { AccountStatus, ConnectionStatus } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 import { CustomErrorCode, CustomErrorMessage } from 'shared/constants';
 import { DefaultProfileValue } from 'src/constants';
 import { CustomException } from 'src/exceptions';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
-import { EJwtType, IJwtPayload } from 'src/types/auth.types';
+import {
+  EJwtType,
+  IJwtPayload,
+  IUpdateConnectionStatusData
+} from 'src/types/auth.types';
 
 import { LoginDto, RefreshDto, RegisterDto } from './dto';
 import { MailService } from '../mail/mail.service';
@@ -231,5 +235,33 @@ export class AuthService {
     if (session) {
       await this.prismaService.sessions.delete({ where: { id: session.id } });
     }
+  }
+
+  verifyAccessToken(token: string): IJwtPayload {
+    return this.jwtService.verify(token, {
+      publicKey: this.configService.get<string>('JWT_AT_PUBLIC')
+    });
+  }
+
+  async updateConnectionStatus(data: IUpdateConnectionStatusData) {
+    await this.prismaService.$transaction(async (tx) => {
+      const session = await tx.sessions.findFirst({
+        select: { id: true },
+        where: {
+          accountId: data.accountId
+        }
+      });
+
+      if (session) {
+        await tx.sessions.update({
+          where: {
+            id: session.id
+          },
+          data: {
+            connectionStatus: ConnectionStatus[data.status]
+          }
+        });
+      }
+    });
   }
 }
