@@ -10,7 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 
-import { SocketEvents } from 'shared/constants/socket';
+import { SocketEvents } from 'shared/constants';
 import { EConnectionStatus } from 'shared/types/api';
 import {
   IJoinDirectMessageRoomData,
@@ -19,11 +19,12 @@ import {
   IReceiveFailedDirectMessageDto,
   ISendDirectMessageData
 } from 'shared/types/socket';
+import { IReceiveDmPinData } from 'shared/types/socket/userSettings-socket.types';
 
 import { Client, SocketWithAuth } from './gateway.type';
 import { AuthService } from '../auth/auth.service';
 import { DirectMessageService } from '../dm/dm.service';
-
+import { UserSettingsService } from '../userSettings/userSettings.service';
 
 @WebSocketGateway({ namespace: 'chat' })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -34,7 +35,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly directMessageService: DirectMessageService
+    private readonly directMessageService: DirectMessageService,
+    private readonly userSettingsService: UserSettingsService
   ) {
     this.clients = [];
   }
@@ -80,6 +82,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: SocketWithAuth,
     @MessageBody() data: IJoinDirectMessageRoomData
   ) {
+    try {
+      const result = await this.userSettingsService.pinDirectMessage(
+        client.auth.sub,
+        data.targetId
+      );
+
+      client.emit(
+        SocketEvents.receiveDmPin,
+        result satisfies IReceiveDmPinData
+      );
+    } catch {}
+
     client.join([client.auth.sub, data.targetId].sort().join('-'));
   }
 
@@ -110,8 +124,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             ...message
           }
         } satisfies IReceiveDirectMessageDto);
-    } catch (_) {
-      console.log(_);
+    } catch {
       client.emit(SocketEvents.receiveFailedDirectMessage, {
         message: {
           ...data,

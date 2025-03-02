@@ -1,21 +1,17 @@
 import {
-  Body,
   Controller,
   Delete,
   ForbiddenException,
   HttpCode,
   HttpStatus,
   Param,
-  Post,
   Req,
   UseGuards
 } from '@nestjs/common';
 
-import { IPinDirectMessageResult } from 'shared/types/api';
 import { JwtAtGuard } from 'src/guards';
 import { IRequestWithUser } from 'src/types/auth.types';
 
-import { PinDirectMessageDto } from './dto';
 import { UserSettingsService } from './userSettings.service';
 
 @Controller('users/:id/settings')
@@ -26,17 +22,17 @@ export class UserSettingsController {
     if (id !== accountId) throw new ForbiddenException('Forbidden resource');
   }
 
-  @UseGuards(JwtAtGuard)
-  @Post('direct-message/pin')
-  async pinDirectMessage(
-    @Req() req: IRequestWithUser,
-    @Body() body: PinDirectMessageDto,
-    @Param('id') accountId: string
-  ): Promise<IPinDirectMessageResult> {
-    this.authenticateAccount(req.user.sub, accountId);
+  // @UseGuards(JwtAtGuard)
+  // @Post('direct-message/pin')
+  // async pinDirectMessage(
+  //   @Req() req: IRequestWithUser,
+  //   @Body() body: PinDirectMessageDto,
+  //   @Param('id') accountId: string
+  // ): Promise<IPinDirectMessageResult> {
+  //   this.authenticateAccount(req.user.sub, accountId);
 
-    return this.userSettingsService.pinDirectMessage(accountId, body.targetId);
-  }
+  //   return this.userSettingsService.pinDirectMessage(accountId, body.targetId);
+  // }
 
   @UseGuards(JwtAtGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
