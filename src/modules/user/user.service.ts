@@ -909,7 +909,10 @@ export class UserService {
         }
       });
 
-      if (target.relationship[0]?.status !== RelationshipStatus.BLOCKED) {
+      if (
+        target.relationship[0]?.status &&
+        target.relationship[0].status !== RelationshipStatus.BLOCKED
+      ) {
         await tx.relationships.delete({
           where: {
             accountId_targetId: {
