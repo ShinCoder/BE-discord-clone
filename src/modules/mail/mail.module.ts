@@ -19,7 +19,7 @@ import { MailService } from './mail.service';
           }
         },
         defaults: {
-          from: `'Not Discord <${configService.get<string>('MAIL_FROM')}>'`
+          from: `'SChat <${configService.get<string>('MAIL_FROM')}>'`
         },
         template: {
           dir: process.cwd() + '/dist/assets/templates',
