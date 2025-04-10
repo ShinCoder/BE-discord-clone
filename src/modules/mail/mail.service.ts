@@ -10,7 +10,7 @@ export class MailService {
   async sendVerificationEmail(data: ISendVerificationEmailData) {
     await this.mailerService.sendMail({
       to: data.to,
-      subject: 'Verify Email Address NOT for Discord',
+      subject: 'Verify Email Address for SChat',
       template: 'verify',
       context: data.context
     });
